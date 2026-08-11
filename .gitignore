@@ -1,0 +1,4 @@
+node_modules/
+publish/
+.history
+package-lock.json

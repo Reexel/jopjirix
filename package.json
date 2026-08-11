@@ -1,0 +1,20 @@
+{
+  "name": "joplin-plugin-jopjirix",
+  "version": "1.1.3",
+  "private": true,
+  "description": "JopJirix: Kanban board (cards, statuses, assignees, dates) + Wiki with subpage hierarchy for Joplin",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "dist": "npm run build && node tools/build-jpl.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "archiver": "^6.0.1",
+    "copy-webpack-plugin": "^11.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
