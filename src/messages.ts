@@ -36,7 +36,7 @@ export async function handleMessage(store: BoardStore, msg: any): Promise<any> {
         const card: Card = {
           id: uid(), key, tag,
           title: String(p.title || 'Без названия').trim(),
-          description: '',
+          description: String(p.description || ''),
           status: '', assigneeId: p.assigneeId || null,
           startDate: p.startDate || null, dueDate: p.dueDate || null,
           createdAt: Date.now(), updatedAt: Date.now(),
@@ -197,6 +197,14 @@ export async function handleMessage(store: BoardStore, msg: any): Promise<any> {
         if (!msg.tagId) return { ok: false, error: 'wiki.tags.remove: не передан ID тэга' };
         const tags = await notes.removeTagFromNote(id, msg.tagId);
         return { ok: true, tags };
+      }
+
+      case 'addComment': {
+        const author = String(msg.author || '');
+        const text = String(msg.text || '');
+        store.addComment(msg.cardId, author, text);
+        await store.save();
+        return { ok: true, state: store.state };
       }
 
       default:

@@ -164,7 +164,15 @@ export class BoardStore {
         : d.project,
       statuses: Array.isArray(s.statuses) && s.statuses.length ? s.statuses : d.statuses,
       columns: Array.isArray(s.columns) ? s.columns : d.columns,
-      cards: s.cards && typeof s.cards === 'object' ? s.cards : d.cards,
+      cards: (() => {
+        const src = s.cards && typeof s.cards === 'object' ? s.cards : d.cards;
+        const out: Record<string, any> = {};
+        for (const k of Object.keys(src)) {
+          out[k] = src[k];
+          if (!Array.isArray(out[k].comments)) out[k].comments = [];
+        }
+        return out;
+      })(),
       assignees: (Array.isArray(s.assignees) ? s.assignees : d.assignees).map((a: any) => ({ id: a.id, name: a.name, color: a.color, role: a.role || '' })),
       counters: s.counters && typeof s.counters === 'object' ? s.counters : {},
       wikiPageIds: Array.isArray(s.wikiPageIds) ? s.wikiPageIds.map(String) : [],
@@ -214,6 +222,7 @@ export class BoardStore {
     const card = this.state.cards[cardId];
     if (!card) return;
     if (patch.title !== undefined) card.title = patch.title;
+    if (patch.description !== undefined) card.description = String(patch.description);
     if (patch.assigneeId !== undefined) card.assigneeId = patch.assigneeId;
     if (patch.status !== undefined && patch.status) card.status = patch.status;
     if (patch.startDate !== undefined) card.startDate = patch.startDate;
@@ -272,6 +281,19 @@ export class BoardStore {
     const a: Assignee = { id: uid(), name, role: role || '', color };
     this.state.assignees.push(a);
     return a;
+  }
+
+  addComment(cardId: string, author: string, text: string): void {
+    const card = this.state.cards[cardId];
+    if (!card) return;
+    if (!Array.isArray((card as any).comments)) (card as any).comments = [];
+    (card as any).comments.push({
+      id: uid(),
+      author: String(author || ''),
+      text: String(text || ''),
+      createdAt: Date.now(),
+    });
+    card.updatedAt = Date.now();
   }
 
   removeAssignee(id: string): void {

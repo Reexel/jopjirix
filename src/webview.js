@@ -193,6 +193,8 @@
       '<div class="card-foot">' +
       (as ? '<span class="avatar" style="background:' + esc(as.color) + '" title="' + esc(as.name + (as.role ? ' · ' + as.role : '')) + '">' + esc(initials(as.name)) + '</span>' : '<span class="avatar avatar-none" title="' + esc(T('card.unassigned')) + '">?</span>') +
       '<span class="tag-badge">#' + esc(card.tag) + '</span>' +
+      (card.description ? '<span class="tag-badge" title="' + esc(T('card.desc')) + '">📄</span>' : '') +
+      ((card.comments && card.comments.length) ? '<span class="tag-badge" title="' + esc(T('card.comments')) + '">💬 ' + card.comments.length + '</span>' : '') +
       (card.noteId ? '<button class="icon-btn card-note" title="' + esc(T('card.openNote')) + '">📝</button>' : '') +
       '</div>';
 
@@ -271,6 +273,7 @@
         '<div class="key-preview">' + esc(T('card.keyPreview')) + ' <b id="f-key-preview">—</b></div></div>';
     }
     html += '<div class="field"><label>' + esc(T('card.title')) + '</label><input type="text" id="f-title" value="' + (card ? esc(card.title) : '') + '"></div>';
+    html += '<div class="field"><label>' + esc(T('card.desc')) + '</label><textarea id="f-desc" placeholder="' + esc(T('card.descPh')) + '">' + (card ? esc(card.description || '') : '') + '</textarea></div>';
     html += '<div class="field-row">' +
       '<div class="field"><label>' + esc(T('card.holder')) + '</label><select id="f-col">' + state.columns.map((c) => '<option value="' + c.id + '"' + (c.id === curCol ? ' selected' : '') + '>' + esc(c.title) + '</option>').join('') + '</select></div>' +
       '<div class="field"><label>' + esc(T('card.status')) + '</label><select id="f-status">' + statusOptions(curStatus, false) + '</select></div></div>';
@@ -281,6 +284,16 @@
       state.assignees.map((a) => '<option value="' + a.id + '"' + (a.id === (card ? card.assigneeId : '') ? ' selected' : '') + '>' + esc(a.name) + (a.role ? ' — ' + esc(a.role) : '') + '</option>').join('') + '</select></div>';
     if (card) html += '<div class="hint">' + esc(T('card.created')) + ': ' + fmtDate(card.createdAt) + '</div>';
     if (!card) html += '<label class="check"><input type="checkbox" id="f-note"' + (settings.createNoteByDefault ? ' checked' : '') + '> ' + esc(T('card.createNote')) + '</label>';
+    if (card) {
+      html += '<div class="field"><label>' + esc(T('card.comments')) + '</label><div id="f-comments"></div>' +
+        '<div class="field-row" style="margin-top:8px">' +
+        (state.assignees.length
+          ? '<div class="field"><select id="f-c-author">' + state.assignees.map((a) => '<option value="' + esc(a.name) + '">' + esc(a.name) + (a.role ? ' — ' + esc(a.role) : '') + '</option>').join('') + '</select></div>'
+          : '<div class="field"><input type="text" id="f-c-author-free" placeholder="' + esc(T('card.commentAuthor')) + '" autocomplete="off"></div>') +
+        '</div>' +
+        '<div class="field"><textarea id="f-c-text" placeholder="' + esc(T('card.commentPh')) + '" style="min-height:48px"></textarea></div>' +
+        '<button class="btn" id="f-c-add">💬 ' + esc(T('card.commentAdd')) + '</button></div>';
+    }
     html += '<div class="modal-actions">' + (card ? '<button class="btn danger" id="f-delete">' + esc(T('card.delete')) + '</button>' : '') +
       '<span class="spacer"></span><button class="btn" id="f-cancel">' + esc(T('card.cancel')) + '</button>' +
       '<button class="btn primary" id="f-save">' + (card ? esc(T('card.save')) : esc(T('card.create'))) + '</button></div>';
@@ -302,14 +315,16 @@
       if (card) {
         await apply(await post({
           action: 'updateCard', cardId: card.id, columnId: $('#f-col').value,
-          patch: { title: titleVal, assigneeId: $('#f-assignee').value || null, status: $('#f-status').value, startDate: $('#f-start').value || null, dueDate: $('#f-due').value || null },
+          patch: { title: titleVal, description: $('#f-desc').value,
+            assigneeId: $('#f-assignee').value || null, status: $('#f-status').value,
+            startDate: $('#f-start').value || null, dueDate: $('#f-due').value || null },
         }));
       } else {
         const tag = normalizeTag($('#f-tag').value) || normalizeTag(projectTag());
         if (!tag) { toast(T('card.errTag'), true); return; }
         await apply(await post({
           action: 'addCard',
-          payload: { title: titleVal, tag, columnId: $('#f-col').value, statusId: $('#f-status').value, assigneeId: $('#f-assignee').value || null, startDate: $('#f-start').value || null, dueDate: $('#f-due').value || null, createNote: !!$('#f-note') && $('#f-note').checked },
+          payload: { title: titleVal, description: $('#f-desc').value, tag, columnId: $('#f-col').value, statusId: $('#f-status').value, assigneeId: $('#f-assignee').value || null, startDate: $('#f-start').value || null, dueDate: $('#f-due').value || null, createNote: !!$('#f-note') && $('#f-note').checked },
         }));
       }
       closeModal();
@@ -323,6 +338,34 @@
       closeModal();
     };
     setTimeout(() => $('#f-title').focus(), 30);
+
+    function renderComments() {
+      const box = $('#f-comments');
+      if (!box || !card) return;
+      const cur = state.cards[card.id];
+      const list = (cur && cur.comments) || [];
+      box.innerHTML = list.length ? list.map((c) =>
+        '<div class="comment-item"><div class="comment-head"><b>' + esc(c.author) + '</b><span class="hint">' + esc(fmtDate(c.createdAt)) + '</span></div>' +
+        '<div class="comment-text">' + esc(c.text) + '</div></div>'
+      ).join('') : '<div class="hint">' + esc(T('card.commentEmpty')) + '</div>';
+    }
+    if (card) {
+      renderComments();
+      $('#f-c-add').onclick = async () => {
+        const text = String($('#f-c-text').value || '').trim();
+        if (!text) { toast(T('card.commentErr'), true); return; }
+        const authorSel = $('#f-c-author');
+        const authorFree = $('#f-c-author-free');
+        const author = authorSel ? authorSel.value : (String((authorFree && authorFree.value) || '').trim() || '—');
+        const res = await post({ action: 'addComment', cardId: card.id, author, text });
+        if (res && res.ok) {
+          state = res.state;
+          renderBoard();
+          renderComments();
+          $('#f-c-text').value = '';
+        } else toast((res && res.error) || T('common.error'), true);
+      };
+    }
   }
 
   function showColumnModal() {
