@@ -64,6 +64,9 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Ari
 .check{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--sub);margin:2px 0 6px}
 .hint{font-size:11px;color:var(--sub);margin-top:4px}
 .key-preview{background:#E9F2FF;border-radius:6px;padding:7px 10px;font-size:12px;margin-top:6px;font-weight:700}
+.comment-item{border-left:3px solid var(--accent);background:#F7F8F9;border-radius:0 6px 6px 0;padding:6px 8px;margin-bottom:6px}
+.comment-head{display:flex;gap:8px;align-items:baseline}
+.comment-text{margin-top:2px;white-space:pre-wrap}
 .modal-actions{display:flex;gap:8px;margin-top:16px;align-items:center}
 .assignee-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
 .settings{flex:1;overflow:auto;padding:16px 20px;background:#fff}

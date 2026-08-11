@@ -259,6 +259,10 @@ export async function createTaskNote(card: any, assigneeName: string, statusName
     '| **Тэг** | ' + String(card.tag) + ' |',
     '| **Статус** | ' + (statusName || '—') + ' |',
     '| **Исполнитель** | ' + (assigneeName || '—') + ' |',
+    '',
+    '## Описание',
+    '',
+    card.description || '*Описание отсутствует*',
   ].join('\n'));
 
   try {
