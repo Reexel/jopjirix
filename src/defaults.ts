@@ -21,6 +21,7 @@ export function defaultState(): BoardState {
         id: 'demo-1', key: 'DEMO-1', tag: 'DEMO',
         title: 'Пример карточки — перетащите меня',
         description: '', status: 'todo', assigneeId: 'a1',
+        tags: [],
         startDate: null, dueDate: null, createdAt: now, updatedAt: now,
       },
     },
@@ -31,5 +32,6 @@ export function defaultState(): BoardState {
     counters: { DEMO: 1 },
     wikiPageIds: [],
     wikiBackfilled: false,
+    wikiOrders: {},
   };
 }

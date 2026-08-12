@@ -4,6 +4,8 @@ export interface Card {
   id: string; key: string; tag: string; title: string; description: string;
   status: string; assigneeId: string | null; noteId?: string;
   startDate?: string | null; dueDate?: string | null;
+  tags: string[];
+  comments?: Array<{ id: string; author: string; text: string; createdAt: number }>;
   createdAt: number; updatedAt: number;
 }
 export interface Column { id: string; title: string; color: string; status: string; cardIds: string[]; }
@@ -17,4 +19,5 @@ export interface BoardState {
   counters: Record<string, number>;
   wikiPageIds: string[];
   wikiBackfilled: boolean;
+  wikiOrders: Record<string, number>;
 }

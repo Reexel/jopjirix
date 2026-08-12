@@ -77,6 +77,8 @@ export const BUILTIN: Record<string, Record<string, string>> = {
     'wiki.noPages': 'No pages. Create the first one!', 'wiki.nothing': 'Nothing found',
     'wiki.notSelPage': 'No page selected',
     'common.cancel': 'Cancel', 'common.error': 'Error',
+    'card.tags': 'Tags', 'card.tagsPh': 'e.g. backend, urgent',
+    'wiki.order': 'Order', 'wiki.orderPh': '0',
   },
   ru: {
     'app.title': 'JopJirix-доска',
@@ -144,6 +146,8 @@ export const BUILTIN: Record<string, Record<string, string>> = {
     'wiki.noPages': 'Страниц нет. Создайте первую!', 'wiki.nothing': 'Ничего не найдено',
     'wiki.notSelPage': 'Страница не выбрана',
     'common.cancel': 'Отмена', 'common.error': 'Ошибка',
+    'card.tags': 'Тэги', 'card.tagsPh': 'например backend, urgent',
+    'wiki.order': 'Порядок', 'wiki.orderPh': '0',
   },
   de: {}, es: {}, pt: {}, fr: {}, sr: {}, zh: {}, ja: {},
 };

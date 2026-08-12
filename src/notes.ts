@@ -268,6 +268,12 @@ export async function createTaskNote(card: any, assigneeName: string, statusName
   try {
     const note = await createNoteRobust(String(card.key + ' ' + card.title), text, folderId);
     try { await ensureTagOnNote(String(note.id), String(card.tag)); } catch (e) { console.warn('Kanban: не удалось привязать тэг карточки', e); }
+    try {
+      const cardTags = Array.isArray(card.tags) ? card.tags : [];
+      for (const tg of cardTags) {
+        try { await ensureTagOnNote(String(note.id), String(tg)); } catch (e) { /* ignore */ }
+      }
+    } catch (e) { /* ignore */ }
     return String(note.id);
   } catch (e) {
     console.warn('Kanban: создание заметки карточки не удалось', e);
