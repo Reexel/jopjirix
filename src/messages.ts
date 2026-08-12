@@ -11,7 +11,7 @@ export async function handleMessage(store: BoardStore, msg: any): Promise<any> {
   try {
     switch (msg && msg.action) {
       case 'getState':
-        return { ok: true, state: store.state, settings: store.publicSettings(), i18n: store.i18nPayload() };
+        return { ok: true, state: store.state, settings: store.publicSettings(), i18n: store.i18nPayload(), orders: store.getWikiOrders() };
 
       case 'i18n.setLocale':
         await store.setLocale(msg.locale);
@@ -37,6 +37,7 @@ export async function handleMessage(store: BoardStore, msg: any): Promise<any> {
           id: uid(), key, tag,
           title: String(p.title || 'Без названия').trim(),
           description: String(p.description || ''),
+          tags: Array.isArray(p.tags) ? p.tags.map(String) : [],
           status: '', assigneeId: p.assigneeId || null,
           startDate: p.startDate || null, dueDate: p.dueDate || null,
           createdAt: Date.now(), updatedAt: Date.now(),
@@ -205,6 +206,15 @@ export async function handleMessage(store: BoardStore, msg: any): Promise<any> {
         store.addComment(msg.cardId, author, text);
         await store.save();
         return { ok: true, state: store.state };
+      }
+
+      case 'wiki.setOrder': {
+        const id = needId(msg);
+        if (!id) return { ok: false, error: 'wiki.setOrder: no id' };
+        const n = parseInt(String(msg.order), 10);
+        store.setWikiOrder(id, Number.isFinite(n) ? n : NaN);
+        await store.save();
+        return { ok: true, orders: store.getWikiOrders() };
       }
 
       default:

@@ -170,6 +170,7 @@ export class BoardStore {
         for (const k of Object.keys(src)) {
           out[k] = src[k];
           if (!Array.isArray(out[k].comments)) out[k].comments = [];
+          if (!Array.isArray(out[k].tags)) out[k].tags = [];
         }
         return out;
       })(),
@@ -177,6 +178,7 @@ export class BoardStore {
       counters: s.counters && typeof s.counters === 'object' ? s.counters : {},
       wikiPageIds: Array.isArray(s.wikiPageIds) ? s.wikiPageIds.map(String) : [],
       wikiBackfilled: Boolean(s.wikiBackfilled),
+      wikiOrders: s.wikiOrders && typeof s.wikiOrders === 'object' ? s.wikiOrders : {},
     };
   }
 
@@ -223,6 +225,7 @@ export class BoardStore {
     if (!card) return;
     if (patch.title !== undefined) card.title = patch.title;
     if (patch.description !== undefined) card.description = String(patch.description);
+    if (Array.isArray(patch.tags)) card.tags = patch.tags.map(String);
     if (patch.assigneeId !== undefined) card.assigneeId = patch.assigneeId;
     if (patch.status !== undefined && patch.status) card.status = patch.status;
     if (patch.startDate !== undefined) card.startDate = patch.startDate;
@@ -281,6 +284,19 @@ export class BoardStore {
     const a: Assignee = { id: uid(), name, role: role || '', color };
     this.state.assignees.push(a);
     return a;
+  }
+
+  setWikiOrder(pageId: string, order: number): void {
+    if (!this.state.wikiOrders) this.state.wikiOrders = {};
+    if (Number.isNaN(order)) {
+      delete this.state.wikiOrders[String(pageId)];
+    } else {
+      this.state.wikiOrders[String(pageId)] = order;
+    }
+  }
+
+  getWikiOrders(): Record<string, number> {
+    return this.state.wikiOrders || {};
   }
 
   addComment(cardId: string, author: string, text: string): void {
