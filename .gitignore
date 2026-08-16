@@ -1,4 +1,7 @@
 node_modules/
-publish/
 .history
 package-lock.json
+dist/
+*.jpl
+.DS_Store
+*.log

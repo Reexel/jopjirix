@@ -2,10 +2,10 @@
   "manifest_version": 1,
   "id": "plugin.joplin.jopjirix",
   "app_min_version": "2.6",
-  "version": "1.1.5",
-  "name": "JopJirix — Kanban & Wiki",
-  "description": "Канбан-доска: карточки с авто-ключами по тэгам, статусы, исполнители, даты, настраиваемые картхолдеры. Встроенный Wiki на заметках Joplin с иерархией подстраниц.",
-  "author": "Aleksei Shevchenko aka Reexel",
+  "version": "1.1.6",
+  "name": "JopJirix - Kanban & Wiki",
+  "description": "Kanban board with auto-generated task keys, statuses, assignees, dates. Built-in Wiki with subpage hierarchy.",
+  "author": "Aleksei Shevchenko",
   "homepage_url": "https://github.com/Reexel/jopjirix",
   "repository_url": "https://github.com/Reexel/jopjirix"
 }
